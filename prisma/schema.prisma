@@ -6,10 +6,98 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  email          String    @unique @db.VarChar(320)
+  password_hash  String    @db.Text
+  display_name   String    @db.VarChar(100)
+  avatar_url     String?   @db.Text
+  is_active      Boolean   @default(true)
+  last_login_at  DateTime? @db.Timestamptz(6)
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6)
+
+  // relations
+  articles       Article[]
+  comments       Comment[]
+
+  @@map("user")
+}
+
+model Article {
+  id              String      @id @default(uuid()) @db.Uuid
+  author_id       String      @db.Uuid
+  title           String      @db.VarChar(200)
+  summary         String?     @db.VarChar(280)
+  content         String      @db.Text
+  cover_image_url String?     @db.Text
+  is_deleted      Boolean     @default(false)
+  created_at      DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime    @default(now()) @db.Timestamptz(6)
+
+  // relations
+  author          User        @relation(fields: [author_id], references: [id], onDelete: Restrict)
+  article_tags    ArticleTag[]
+  comments        Comment[]
+
+  @@index([created_at, id], map: "idx_articles_published_at_id")
+  @@index([title],          map: "idx_articles_title")
+
+  @@map("article")
+}
+
+model Tag {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @unique @db.VarChar(60)
+  slug        String       @unique @db.VarChar(80)
+  active      Boolean      @default(true)
+  created_at  DateTime     @default(now()) @db.Timestamptz(6)
+
+  // relations
+  article_tags ArticleTag[]
+
+  @@map("tag")
+}
+
+model ArticleTag {
+  article_id String  @db.Uuid
+  tag_id     String  @db.Uuid
+
+  // relations
+  article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  tag        Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([article_id, tag_id])
+  @@index([tag_id, article_id])
+
+  @@map("article_tag")
+}
+
+model Comment {
+  id           String    @id @default(uuid()) @db.Uuid
+  article_id   String    @db.Uuid
+  parent_id    String?   @db.Uuid
+  author_id    String    @db.Uuid
+  content      String    @db.Text
+  is_deleted   Boolean   @default(false)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+
+  // relations
+  article      Article   @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  parent       Comment?  @relation("CommentToComment", fields: [parent_id], references: [id], onDelete: SetNull)
+  replies      Comment[] @relation("CommentToComment")
+  author       User      @relation(fields: [author_id], references: [id], onDelete: Restrict)
+
+  @@index([article_id, created_at, id], map: "idx_comments_article_created_id")
+  @@index([parent_id])
+
+  @@map("comment")
 }

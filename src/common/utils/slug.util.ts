@@ -18,5 +18,5 @@ export function slugify(input: string): string {
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-') // troca tudo que não é a-z/0-9 por '-'
-    .replace(/^-+|-+$/g, '');    // remove hifens das bordas
+    .replace(/^-+|-+$/g, ''); // remove hifens das bordas
 }

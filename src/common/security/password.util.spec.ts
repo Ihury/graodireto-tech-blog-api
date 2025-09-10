@@ -23,14 +23,20 @@ describe('password.util (bcrypt) — Grão Direto / Tech Blog', () => {
 
   it('valida corretamente a senha "GraoDireto#TechBlog2025!"', async () => {
     const hash = await hashPassword('GraoDireto#TechBlog2025!');
-    await expect(verifyPassword('GraoDireto#TechBlog2025!', hash)).resolves.toBe(true);
+    await expect(
+      verifyPassword('GraoDireto#TechBlog2025!', hash),
+    ).resolves.toBe(true);
     await expect(verifyPassword('senha-errada', hash)).resolves.toBe(false);
   });
 
   it('aceita unicode: "grão direto tech blog"', async () => {
     const hash = await hashPassword('grão direto tech blog');
-    await expect(verifyPassword('grão direto tech blog', hash)).resolves.toBe(true);
-    await expect(verifyPassword('grao direto tech blog', hash)).resolves.toBe(false);
+    await expect(verifyPassword('grão direto tech blog', hash)).resolves.toBe(
+      true,
+    );
+    await expect(verifyPassword('grao direto tech blog', hash)).resolves.toBe(
+      false,
+    );
   });
 
   it('lança erro ao hashear senha vazia', async () => {

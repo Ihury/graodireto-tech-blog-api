@@ -17,16 +17,24 @@ type ArticleSeed = {
 };
 
 function getArticlesPath(): string {
-  const preferred = path.resolve(process.cwd(), 'prisma', 'seed', 'articles.json');
+  const preferred = path.resolve(
+    process.cwd(),
+    'prisma',
+    'seed',
+    'articles.json',
+  );
   if (fs.existsSync(preferred)) return preferred;
 
-  throw new Error('articles.json não encontrado. Coloque em prisma/seed/articles.json e rode novamente.');
+  throw new Error(
+    'articles.json não encontrado. Coloque em prisma/seed/articles.json e rode novamente.',
+  );
 }
 
 function readArticles(jsonPath: string): ArticleSeed[] {
   const raw = fs.readFileSync(jsonPath, 'utf-8');
   const rows = JSON.parse(raw) as unknown;
-  if (!Array.isArray(rows)) throw new Error('O arquivo articles.json deve conter um array.');
+  if (!Array.isArray(rows))
+    throw new Error('O arquivo articles.json deve conter um array.');
   return rows as ArticleSeed[];
 }
 
@@ -59,7 +67,10 @@ async function ensureUser(
   return user.id;
 }
 
-async function ensureTags(tagNames: string[], cache: Map<string, string>): Promise<string[]> {
+async function ensureTags(
+  tagNames: string[],
+  cache: Map<string, string>,
+): Promise<string[]> {
   const tagIds: string[] = [];
   for (const name of tagNames) {
     const clean = name.trim();
@@ -85,7 +96,10 @@ async function ensureTags(tagNames: string[], cache: Map<string, string>): Promi
   return tagIds;
 }
 
-async function findExistingArticle(authorId: string, title: string): Promise<string | null> {
+async function findExistingArticle(
+  authorId: string,
+  title: string,
+): Promise<string | null> {
   const existing = await prisma.article.findFirst({
     where: { author_id: authorId, title },
     select: { id: true },
@@ -93,7 +107,11 @@ async function findExistingArticle(authorId: string, title: string): Promise<str
   return existing?.id ?? null;
 }
 
-async function createArticle(authorId: string, title: string, content: string): Promise<string> {
+async function createArticle(
+  authorId: string,
+  title: string,
+  content: string,
+): Promise<string> {
   const article = await prisma.article.create({
     data: { author_id: authorId, title, content },
     select: { id: true },
@@ -110,10 +128,12 @@ async function attachTags(articleId: string, tagIds: string[]): Promise<void> {
 }
 
 function extractTagNames(row: ArticleSeed): string[] {
-  return [row.tag1, row.tag2, row.tag3].filter(Boolean).map((t) => String(t)) as string[];
+  return [row.tag1, row.tag2, row.tag3].filter(Boolean).map((t) => String(t));
 }
 
-function validateRow(row: ArticleSeed): { title: string; author: string; content: string } | null {
+function validateRow(
+  row: ArticleSeed,
+): { title: string; author: string; content: string } | null {
   const title = row.title?.trim();
   const author = row.author?.trim();
   const content = row.content?.trim();
@@ -128,7 +148,9 @@ async function processArticleRow(
 ): Promise<void> {
   const base = validateRow(row);
   if (!base) {
-    console.warn('Pulando registro inválido: precisa de title, author e content.');
+    console.warn(
+      'Pulando registro inválido: precisa de title, author e content.',
+    );
     return;
   }
 
@@ -137,7 +159,9 @@ async function processArticleRow(
 
   const existsId = await findExistingArticle(authorId, base.title);
   if (existsId) {
-    console.log(`Já existe: "${base.title}" de ${base.author}. Pulando criação.`);
+    console.log(
+      `Já existe: "${base.title}" de ${base.author}. Pulando criação.`,
+    );
     return;
   }
 
@@ -151,7 +175,7 @@ async function main() {
   const rows = readArticles(jsonPath);
 
   const userCache = new Map<string, string>(); // display_name -> user.id
-  const tagCache = new Map<string, string>();  // slug -> tag.id
+  const tagCache = new Map<string, string>(); // slug -> tag.id
 
   for (const row of rows) {
     await processArticleRow(row, userCache, tagCache);

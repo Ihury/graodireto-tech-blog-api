@@ -5,6 +5,7 @@ import {
   ArticleSummary,
   ArticleSlug,
 } from '../value-objects';
+import { UserResponse } from '@/auth';
 
 export interface ArticleTag {
   slug: string;
@@ -14,6 +15,7 @@ export interface ArticleTag {
 export interface ArticleProps {
   id: Uuid;
   authorId: Uuid;
+  author?: UserResponse;
   title: ArticleTitle;
   slug: ArticleSlug;
   summary?: ArticleSummary;
@@ -66,6 +68,10 @@ export class Article {
 
   getAuthorId(): Uuid {
     return this.props.authorId;
+  }
+
+  getAuthor(): UserResponse | undefined {
+    return this.props.author;
   }
 
   getTitle(): ArticleTitle {

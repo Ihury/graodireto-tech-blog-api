@@ -27,6 +27,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
         author: {
           select: {
             id: true,
+            email: true,
             display_name: true,
             avatar_url: true,
           },
@@ -57,6 +58,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
         author: {
           select: {
             id: true,
+            email: true,
             display_name: true,
             avatar_url: true,
           },
@@ -109,8 +111,9 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
           author: {
             select: {
               id: true,
-              display_name: true,
               email: true,
+              display_name: true,
+              avatar_url: true,
             },
           },
           article_tags: {
@@ -157,6 +160,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
           author: {
             select: {
               id: true,
+              email: true,
               display_name: true,
               avatar_url: true,
             },
@@ -184,6 +188,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
           author: {
             select: {
               id: true,
+              email: true,
               display_name: true,
               avatar_url: true,
             },
@@ -267,6 +272,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
     updated_at: Date;
     author?: {
       id: string;
+      email: string;
       display_name: string;
       avatar_url?: string | null;
     };
@@ -289,6 +295,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
       author: articleData.author
         ? {
             id: articleData.author.id,
+            email: articleData.author.email,
             displayName: articleData.author.display_name,
             avatarUrl: articleData.author.avatar_url || undefined,
           }

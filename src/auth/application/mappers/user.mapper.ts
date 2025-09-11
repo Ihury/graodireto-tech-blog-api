@@ -3,7 +3,8 @@ import { User } from '../../domain/entities/user.entity';
 export interface UserResponse {
   id: string;
   email: string;
-  display_name: string;
+  displayName: string;
+  avatarUrl?: string;
 }
 
 export class UserMapper {
@@ -11,7 +12,8 @@ export class UserMapper {
     return {
       id: user.getId().getValue(),
       email: user.getEmail().getValue(),
-      display_name: user.getDisplayName().getValue(),
+      displayName: user.getDisplayName().getValue(),
+      avatarUrl: user.getAvatarUrl(),
     };
   }
 }

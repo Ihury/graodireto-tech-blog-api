@@ -18,7 +18,14 @@ export class UserResponseDto implements UserResponse {
     description: 'Nome de exibição do usuário',
     example: 'Ihury Kewin',
   })
-  display_name!: string;
+  displayName!: string;
+
+  @ApiProperty({
+    description: 'URL do avatar do usuário',
+    example: 'https://exemplo.com/avatar.jpg',
+    required: false,
+  })
+  avatarUrl?: string;
 
   constructor(partial: Partial<UserResponseDto>) {
     Object.assign(this, partial);

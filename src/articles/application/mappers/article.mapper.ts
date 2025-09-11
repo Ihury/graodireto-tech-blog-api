@@ -1,8 +1,9 @@
 import { Article, ArticleTag } from '../../domain/entities/article.entity';
+import { UserResponse } from '@/auth';
 
 export interface ArticleResponse {
   id: string;
-  authorId: string;
+  author: UserResponse;
   title: string;
   slug: string;
   summary?: string;
@@ -27,9 +28,19 @@ export interface ArticleListItemResponse {
 
 export class ArticleMapper {
   static toResponse(article: Article): ArticleResponse {
+    const author = article.getAuthor();
+    if (!author) {
+      throw new Error('Author information is required for article response');
+    }
+
     return {
       id: article.getId().getValue(),
-      authorId: article.getAuthorId().getValue(),
+      author: {
+        id: author.id,
+        email: author.email,
+        displayName: author.displayName,
+        avatarUrl: author.avatarUrl,
+      },
       title: article.getTitle().getValue(),
       slug: article.getSlug().getValue(),
       summary: article.getSummary()?.getValue(),

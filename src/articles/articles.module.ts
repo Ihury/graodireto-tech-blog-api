@@ -16,10 +16,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    AuthModule,
-  ],
+  imports: [PrismaModule, AuthModule],
   controllers: [ArticlesController],
   providers: [
     // Application Layer - Use Cases
@@ -35,5 +32,6 @@ import { AuthModule } from '../auth/auth.module';
       useClass: PrismaArticleRepository,
     },
   ],
+  exports: [ArticleRepositoryPort],
 })
 export class ArticlesModule {}

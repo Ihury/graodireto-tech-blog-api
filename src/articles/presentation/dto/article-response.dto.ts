@@ -5,6 +5,7 @@ import {
   ArticleListItemResponse,
 } from '../../application/mappers/article.mapper';
 import { ArticleTag } from '../../domain/entities/article.entity';
+import { UserResponseDto } from '@/auth/presentation/dto/user-response.dto';
 
 export class ArticleTagDto implements ArticleTag {
   @ApiProperty({
@@ -31,11 +32,12 @@ export class ArticleResponseDto implements ArticleResponse {
   id!: string;
 
   @ApiProperty({
-    description: 'ID do autor do artigo',
-    example: '456e7890-e89b-12d3-a456-426614174001',
+    description: 'Informações do autor do artigo',
+    type: UserResponseDto,
   })
   @Expose()
-  authorId!: string;
+  @Type(() => UserResponseDto)
+  author!: UserResponseDto;
 
   @ApiProperty({
     description: 'Título do artigo',

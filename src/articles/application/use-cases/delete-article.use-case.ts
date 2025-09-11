@@ -42,8 +42,7 @@ export class DeleteArticleUseCase {
       }
 
       // Soft delete - marca como deletado mas não remove do banco
-      article.softDelete();
-      await this.articleRepository.save(article);
+      await this.articleRepository.delete(articleId);
 
       return {
         success: true,

@@ -130,11 +130,6 @@ export class Article {
     this.updateTimestamp();
   }
 
-  softDelete(): void {
-    this.props.isDeleted = true;
-    this.updateTimestamp();
-  }
-
   restore(): void {
     this.props.isDeleted = false;
     this.updateTimestamp();

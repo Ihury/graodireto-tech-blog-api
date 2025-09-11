@@ -21,7 +21,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
 
   async findById(id: Uuid): Promise<Article | null> {
     const articleData = await this.prisma.article.findUnique({
-      where: { id: id.getValue() },
+      where: { id: id.getValue(), is_deleted: false },
       include: {
         author: {
           select: {
@@ -50,6 +50,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
     const articleData = await this.prisma.article.findUnique({
       where: {
         slug: slug.getValue(),
+        is_deleted: false,
       },
       include: {
         author: {
@@ -147,7 +148,6 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
         summary: plainArticle.summary,
         content: plainArticle.content,
         cover_image_url: plainArticle.cover_image_url,
-        is_deleted: plainArticle.is_deleted,
         updated_at: plainArticle.updated_at,
       },
       create: plainArticle,
@@ -236,8 +236,9 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
   }
 
   async delete(id: Uuid): Promise<void> {
-    await this.prisma.article.delete({
+    await this.prisma.article.update({
       where: { id: id.getValue() },
+      data: { is_deleted: true, updated_at: new Date() },
     });
   }
 

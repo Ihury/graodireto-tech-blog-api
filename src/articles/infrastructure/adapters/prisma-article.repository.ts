@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   ArticleRepositoryPort,
@@ -14,6 +14,7 @@ import {
   ArticleSummary,
   ArticleSlug,
 } from '../../domain/value-objects';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaArticleRepository implements ArticleRepositoryPort {
@@ -27,7 +28,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
           select: {
             id: true,
             display_name: true,
-            email: true,
+            avatar_url: true,
           },
         },
         article_tags: {
@@ -57,7 +58,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
           select: {
             id: true,
             display_name: true,
-            email: true,
+            avatar_url: true,
           },
         },
         article_tags: {
@@ -140,66 +141,77 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
     const plainArticle = article.toPlainObject();
     const tagSlugs = article.getTags().map((tag) => tag.slug);
 
-    const articleData = await this.prisma.article.upsert({
-      where: { id: plainArticle.id },
-      update: {
-        title: plainArticle.title,
-        slug: plainArticle.slug,
-        summary: plainArticle.summary,
-        content: plainArticle.content,
-        cover_image_url: plainArticle.cover_image_url,
-        updated_at: plainArticle.updated_at,
-      },
-      create: plainArticle,
-      include: {
-        author: {
-          select: {
-            id: true,
-            display_name: true,
-            email: true,
-          },
+    try {
+      const articleData = await this.prisma.article.upsert({
+        where: { id: plainArticle.id },
+        update: {
+          title: plainArticle.title,
+          slug: plainArticle.slug,
+          summary: plainArticle.summary,
+          content: plainArticle.content,
+          cover_image_url: plainArticle.cover_image_url,
+          updated_at: plainArticle.updated_at,
         },
-        article_tags: {
-          include: {
-            tag: {
-              select: {
-                slug: true,
-                name: true,
+        create: plainArticle,
+        include: {
+          author: {
+            select: {
+              id: true,
+              display_name: true,
+              avatar_url: true,
+            },
+          },
+          article_tags: {
+            include: {
+              tag: {
+                select: {
+                  slug: true,
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    // Sempre gerenciar associações de tags (mesmo se vazio)
-    await this.updateArticleTags(articleData.id, tagSlugs);
+      // Sempre gerenciar associações de tags (mesmo se vazio)
+      await this.updateArticleTags(articleData.id, tagSlugs);
 
-    // Buscar o artigo novamente com as tags atualizadas
-    const updatedArticleData = await this.prisma.article.findUnique({
-      where: { id: articleData.id },
-      include: {
-        author: {
-          select: {
-            id: true,
-            display_name: true,
-            email: true,
+      // Buscar o artigo novamente com as tags atualizadas
+      const updatedArticleData = await this.prisma.article.findUnique({
+        where: { id: articleData.id },
+        include: {
+          author: {
+            select: {
+              id: true,
+              display_name: true,
+              avatar_url: true,
+            },
           },
-        },
-        article_tags: {
-          include: {
-            tag: {
-              select: {
-                slug: true,
-                name: true,
+          article_tags: {
+            include: {
+              tag: {
+                select: {
+                  slug: true,
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    return this.toDomain(updatedArticleData!);
+      return this.toDomain(updatedArticleData!);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ConflictException(
+            'Já existe um artigo com este título. Tente usar um título diferente.',
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   private async updateArticleTags(
@@ -253,6 +265,11 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
     is_deleted: boolean;
     created_at: Date;
     updated_at: Date;
+    author?: {
+      id: string;
+      display_name: string;
+      avatar_url?: string | null;
+    };
     article_tags?: Array<{
       tag: {
         slug: string;
@@ -269,6 +286,13 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
     return Article.reconstitute({
       id: Uuid.create(articleData.id),
       authorId: Uuid.create(articleData.author_id),
+      author: articleData.author
+        ? {
+            id: articleData.author.id,
+            displayName: articleData.author.display_name,
+            avatarUrl: articleData.author.avatar_url || undefined,
+          }
+        : undefined,
       title: ArticleTitle.create(articleData.title),
       slug: ArticleSlug.create(articleData.slug),
       summary: articleData.summary

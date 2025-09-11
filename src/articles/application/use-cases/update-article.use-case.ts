@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { ArticleRepositoryPort } from '../../domain/ports/article.repository.port';
 import { Article } from '../../domain/entities/article.entity';
@@ -11,6 +12,7 @@ import {
   ArticleTitle,
   ArticleContent,
   ArticleSummary,
+  ArticleSlug,
 } from '../../domain/value-objects';
 import { InvalidValueObjectError } from '@/common';
 
@@ -56,7 +58,10 @@ export class UpdateArticleUseCase {
       // Atualizar campos se fornecidos
       if (command.title !== undefined) {
         const newTitle = ArticleTitle.create(command.title);
+        const newSlug = ArticleSlug.createFromTitle(newTitle);
+
         article.updateTitle(newTitle);
+        article.updateSlug(newSlug);
       }
 
       if (command.content !== undefined) {
@@ -91,7 +96,8 @@ export class UpdateArticleUseCase {
       }
       if (
         error instanceof NotFoundException ||
-        error instanceof ForbiddenException
+        error instanceof ForbiddenException ||
+        error instanceof ConflictException
       ) {
         throw error;
       }

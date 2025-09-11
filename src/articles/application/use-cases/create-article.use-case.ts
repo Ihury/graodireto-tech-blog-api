@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { ArticleRepositoryPort } from '../../domain/ports/article.repository.port';
 import { Article } from '../../domain/entities/article.entity';
 import { Uuid } from '@/common/domain/value-objects';

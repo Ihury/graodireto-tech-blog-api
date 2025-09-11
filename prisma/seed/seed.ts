@@ -2,10 +2,31 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import fs from 'node:fs';
 import path from 'node:path';
-import { slugify } from 'src/common/utils/slug.util';
-import { hashPassword } from 'src/common/security/password.util';
+import { slugify } from '../../src/common/utils/slug.util';
+import { hashPassword } from '../../src/common/security/password.util';
+
+// Domain imports
+import { User } from '../../src/auth/domain/entities/user.entity';
+import {
+  Email,
+  DisplayName,
+  Uuid,
+} from '../../src/common/domain/value-objects';
+import { PasswordHash } from '../../src/auth/domain/value-objects/password-hash.vo';
+import { Tag } from '../../src/tags/domain/entities/tag.entity';
+import { TagName, TagSlug } from '../../src/tags/domain/value-objects';
+
+// Use Case import
+import { CreateArticleUseCase } from '../../src/articles/application/use-cases/create-article.use-case';
+import { PrismaArticleRepository } from '../../src/articles/infrastructure/adapters/prisma-article.repository';
+import { PrismaService } from '../../src/prisma/prisma.service';
 
 const prisma = new PrismaClient();
+
+// Configurar services para usar o CreateArticleUseCase
+const prismaService = new PrismaService();
+const articleRepository = new PrismaArticleRepository(prismaService);
+const createArticleUseCase = new CreateArticleUseCase(articleRepository);
 
 type ArticleSeed = {
   title: string;
@@ -50,21 +71,40 @@ async function ensureUser(
   const cached = cache.get(displayName);
   if (cached) return cached;
 
-  const email = `${slugify(displayName)}@graodireto.com.br`;
-  const user = await prisma.user.upsert({
-    where: { email },
-    update: { display_name: displayName, is_active: true },
-    create: {
-      email,
-      display_name: displayName,
-      password_hash: await hashDefaultPassword(),
-      is_active: true,
-    },
+  const emailValue = `${slugify(displayName)}@graodireto.com.br`;
+
+  // Verificar se usuário já existe
+  const existingUser = await prisma.user.findUnique({
+    where: { email: emailValue },
     select: { id: true },
   });
 
-  cache.set(displayName, user.id);
-  return user.id;
+  if (existingUser) {
+    cache.set(displayName, existingUser.id);
+    return existingUser.id;
+  }
+
+  // Criar novo usuário usando entidade de domínio
+  const email = Email.create(emailValue);
+  const displayNameVO = DisplayName.create(displayName);
+  const passwordHash = PasswordHash.create(await hashDefaultPassword());
+
+  const userDomain = User.create({
+    email,
+    displayName: displayNameVO,
+    passwordHash,
+    isActive: true,
+  });
+
+  // Salvar no banco usando dados da entidade
+  const plainUser = userDomain.toPlainObject();
+  const savedUser = await prisma.user.create({
+    data: plainUser,
+    select: { id: true },
+  });
+
+  cache.set(displayName, savedUser.id);
+  return savedUser.id;
 }
 
 async function ensureTags(
@@ -76,22 +116,44 @@ async function ensureTags(
     const clean = name.trim();
     if (!clean) continue;
 
-    const slug = slugify(clean);
-    const cached = cache.get(slug);
+    const slugValue = slugify(clean);
+    const cached = cache.get(slugValue);
     if (cached) {
       tagIds.push(cached);
       continue;
     }
 
-    const tag = await prisma.tag.upsert({
-      where: { slug },
-      update: { name: clean, active: true },
-      create: { name: clean, slug, active: true },
-      select: { id: true },
+    // Verificar se tag já existe
+    const existingTag = await prisma.tag.findUnique({
+      where: { slug: slugValue },
+      select: { slug: true },
     });
 
-    cache.set(slug, tag.id);
-    tagIds.push(tag.id);
+    if (existingTag) {
+      cache.set(slugValue, existingTag.slug);
+      tagIds.push(existingTag.slug);
+      continue;
+    }
+
+    // Criar nova tag usando entidade de domínio
+    const tagName = TagName.create(clean);
+    const tagSlug = TagSlug.create(slugValue);
+
+    const tagDomain = Tag.create({
+      name: tagName,
+      slug: tagSlug,
+      active: true,
+    });
+
+    // Salvar no banco usando dados da entidade
+    const plainTag = tagDomain.toPlainObject();
+    const savedTag = await prisma.tag.create({
+      data: plainTag,
+      select: { slug: true },
+    });
+
+    cache.set(slugValue, savedTag.slug);
+    tagIds.push(savedTag.slug);
   }
   return tagIds;
 }
@@ -107,23 +169,19 @@ async function findExistingArticle(
   return existing?.id ?? null;
 }
 
-async function createArticle(
+async function createArticleWithUseCase(
   authorId: string,
   title: string,
   content: string,
-): Promise<string> {
-  const article = await prisma.article.create({
-    data: { author_id: authorId, title, content },
-    select: { id: true },
-  });
-  return article.id;
-}
-
-async function attachTags(articleId: string, tagIds: string[]): Promise<void> {
-  if (!tagIds.length) return;
-  await prisma.articleTag.createMany({
-    data: tagIds.map((tag_id) => ({ article_id: articleId, tag_id })),
-    skipDuplicates: true,
+  tagSlugs: string[],
+): Promise<void> {
+  // Usar o CreateArticleUseCase para criar o artigo
+  // Isso garante que todas as validações e regras de negócio sejam aplicadas
+  await createArticleUseCase.execute({
+    authorId,
+    title,
+    content,
+    tags: tagSlugs,
   });
 }
 
@@ -155,7 +213,7 @@ async function processArticleRow(
   }
 
   const authorId = await ensureUser(base.author, userCache);
-  const tagIds = await ensureTags(extractTagNames(row), tagCache);
+  const tagSlugs = await ensureTags(extractTagNames(row), tagCache);
 
   const existsId = await findExistingArticle(authorId, base.title);
   if (existsId) {
@@ -165,17 +223,20 @@ async function processArticleRow(
     return;
   }
 
-  const articleId = await createArticle(authorId, base.title, base.content);
-  await attachTags(articleId, tagIds);
+  // Usar o CreateArticleUseCase que já gerencia tags automaticamente
+  await createArticleWithUseCase(authorId, base.title, base.content, tagSlugs);
 }
 
 // ===== Main =====
 async function main() {
+  // Conectar o PrismaService
+  await prismaService.$connect();
+
   const jsonPath = getArticlesPath();
   const rows = readArticles(jsonPath);
 
   const userCache = new Map<string, string>(); // display_name -> user.id
-  const tagCache = new Map<string, string>(); // slug -> tag.id
+  const tagCache = new Map<string, string>(); // slug -> tag.slug
 
   for (const row of rows) {
     await processArticleRow(row, userCache, tagCache);
@@ -191,4 +252,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await prismaService.$disconnect();
   });

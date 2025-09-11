@@ -100,7 +100,6 @@ export class User {
     this.props.updatedAt = new Date();
   }
 
-  // Para compatibilidade com o sistema atual
   toPlainObject() {
     return {
       id: this.props.id.getValue(),

@@ -19,9 +19,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: AppConfig.swagger.swaggerOptions,
     customSiteTitle: AppConfig.swagger.customSiteTitle,
+    jsonDocumentUrl: '/api/docs/json',
   });
 
   // Ouve SIGINT/SIGTERM e dispara OnModuleDestroy/OnApplicationShutdown

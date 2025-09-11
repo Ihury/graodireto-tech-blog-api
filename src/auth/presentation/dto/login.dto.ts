@@ -9,7 +9,7 @@ export class LoginDto {
     example: 'ihury@graodireto.com.br',
   })
   @IsEmail({}, { message: 'Email deve ter um formato válido' })
-  @Transform(({ value }) =>
+  @Transform(({ value }): string =>
     typeof value === 'string' ? value.toLowerCase().trim() : value,
   )
   email!: string;

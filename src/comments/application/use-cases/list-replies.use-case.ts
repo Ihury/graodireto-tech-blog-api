@@ -12,7 +12,7 @@ export interface ListRepliesCommand {
   after?: string;
 }
 
-export interface ListRepliesResult extends CommentListResult {}
+export type ListRepliesResult = CommentListResult;
 
 @Injectable()
 export class ListRepliesUseCase {

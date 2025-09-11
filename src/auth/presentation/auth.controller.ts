@@ -45,9 +45,7 @@ export class AuthController {
     type: ValidateTokenResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Token inválido' })
-  async validate(
-    @Request() req: AuthenticatedRequest,
-  ): Promise<ValidateTokenResponseDto> {
+  validate(@Request() req: AuthenticatedRequest): ValidateTokenResponseDto {
     // O AuthGuard já validou o token e populou req.user
     return {
       valid: true,

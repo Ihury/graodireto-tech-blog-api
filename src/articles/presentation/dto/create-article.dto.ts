@@ -20,7 +20,9 @@ export class CreateArticleDto {
   @IsString({ message: 'Título deve ser uma string' })
   @MinLength(5, { message: 'Título deve ter pelo menos 5 caracteres' })
   @MaxLength(200, { message: 'Título não pode ter mais de 200 caracteres' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }): string =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   title!: string;
 
   @ApiProperty({
@@ -30,7 +32,9 @@ export class CreateArticleDto {
   })
   @IsString({ message: 'Conteúdo deve ser uma string' })
   @MinLength(50, { message: 'Conteúdo deve ter pelo menos 50 caracteres' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }): string =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   content!: string;
 
   @ApiProperty({
@@ -54,10 +58,10 @@ export class CreateArticleDto {
   @IsArray({ message: 'Tags deve ser um array' })
   @IsString({ each: true, message: 'Cada tag deve ser uma string' })
   @ArrayMaxSize(10, { message: 'Máximo de 10 tags por artigo' })
-  @Transform(({ value }) =>
+  @Transform(({ value }): string[] | undefined =>
     Array.isArray(value)
-      ? value.map((tag) =>
-          typeof tag === 'string' ? tag.trim().toLowerCase() : tag,
+      ? value.map((tag: unknown): string =>
+          typeof tag === 'string' ? tag.trim().toLowerCase() : String(tag),
         )
       : value,
   )

@@ -10,7 +10,8 @@ describe('AuthGuard', () => {
   const mockUser = {
     id: '7b6347d5-eea6-45d1-82a0-d0732a0d430e',
     email: 'ihury@graodireto.com.br',
-    display_name: 'Ihury Kewin',
+    displayName: 'Ihury Kewin',
+    avatarUrl: undefined,
   };
 
   const mockValidateTokenResult = {
@@ -258,7 +259,8 @@ describe('AuthGuard', () => {
       const differentUser = {
         id: 'c626a9ac-c0dc-4223-9acc-72ed8fbe6776',
         email: 'tech@graodireto.com.br',
-        display_name: 'Tech Blog',
+        displayName: 'Tech Blog',
+        avatarUrl: undefined,
       };
       const context = createMockExecutionContext({
         authorization: 'Bearer valid-token',

@@ -48,7 +48,7 @@ export class TokenPayload {
     const payload: any = {
       sub: this.props.sub.getValue(),
       email: this.props.email.getValue(),
-      display_name: this.props.displayName.getValue()
+      display_name: this.props.displayName.getValue(),
     };
 
     if (this.props.iat !== undefined) {

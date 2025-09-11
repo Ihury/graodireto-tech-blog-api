@@ -18,7 +18,7 @@ export interface ListArticlesCommand {
   tags?: string[];
 }
 
-export interface ListArticlesResult extends OffsetPaginatedResult<Article> {}
+export type ListArticlesResult = OffsetPaginatedResult<Article>;
 
 @Injectable()
 export class ListArticlesUseCase {

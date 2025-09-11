@@ -18,7 +18,9 @@ export class CreateCommentDto {
   @IsString({ message: 'Conteúdo deve ser uma string' })
   @MinLength(1, { message: 'Conteúdo deve ter pelo menos 1 caractere' })
   @MaxLength(1000, { message: 'Conteúdo não pode ter mais de 1000 caracteres' })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }): string =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   content!: string;
 
   @ApiProperty({

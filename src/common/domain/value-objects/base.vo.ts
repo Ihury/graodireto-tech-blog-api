@@ -1,4 +1,4 @@
-import { validateSync, ValidationError } from 'class-validator';
+import { validateSync } from 'class-validator';
 import { InvalidValueObjectError } from '../exceptions';
 
 /**

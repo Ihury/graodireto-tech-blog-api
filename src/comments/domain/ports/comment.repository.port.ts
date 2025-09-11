@@ -5,15 +5,15 @@ import {
   CursorPaginatedResult,
 } from '@/common/pagination';
 
-export interface CommentListResult extends CursorPaginatedResult<Comment> {}
+export type CommentListResult = CursorPaginatedResult<Comment>;
 
 export interface CommentWithRepliesPreview {
   comment: Comment;
   replies: CommentListResult;
 }
 
-export interface CommentsByArticleResult
-  extends CursorPaginatedResult<CommentWithRepliesPreview> {}
+export type CommentsByArticleResult =
+  CursorPaginatedResult<CommentWithRepliesPreview>;
 
 export abstract class CommentRepositoryPort {
   abstract findById(id: Uuid): Promise<Comment | null>;

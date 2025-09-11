@@ -24,7 +24,7 @@ export class ListArticlesDto extends OffsetPaginationRequestDto {
     required: false,
   })
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): string[] | undefined => {
     if (typeof value === 'string') {
       return value.split(',').map((tag) => tag.trim());
     }

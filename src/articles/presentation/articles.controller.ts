@@ -35,9 +35,7 @@ import {
 } from './dto/list-articles.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import {
-  ArticleResponseDto,
-} from './dto/article-response.dto';
+import { ArticleResponseDto } from './dto/article-response.dto';
 import { DeleteArticleResponseDto } from './dto/delete-article.dto';
 
 @ApiTags('articles')

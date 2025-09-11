@@ -9,7 +9,9 @@ class DisplayNameValidator {
   @MaxLength(100, {
     message: 'DisplayName não pode ter mais de 100 caracteres',
   })
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }): string =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   value: string;
 
   constructor(value: string) {

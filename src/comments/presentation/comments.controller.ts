@@ -25,9 +25,7 @@ import { ListCommentsByArticleUseCase } from '../application/use-cases/list-comm
 import { ListRepliesUseCase } from '../application/use-cases/list-replies.use-case';
 import { CommentMapper } from '../application/mappers/comment.mapper';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import {
-  CommentResponseDto,
-} from './dto/comment-response.dto';
+import { CommentResponseDto } from './dto/comment-response.dto';
 import {
   ListCommentsDto,
   ListCommentsResponseDto,

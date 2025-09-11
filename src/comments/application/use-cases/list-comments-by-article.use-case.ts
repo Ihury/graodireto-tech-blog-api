@@ -12,7 +12,7 @@ export interface ListCommentsByArticleCommand {
   after?: string;
 }
 
-export interface ListCommentsByArticleResult extends CommentsByArticleResult {}
+export type ListCommentsByArticleResult = CommentsByArticleResult;
 
 @Injectable()
 export class ListCommentsByArticleUseCase {

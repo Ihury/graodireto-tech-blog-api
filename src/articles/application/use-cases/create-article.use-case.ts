@@ -1,17 +1,8 @@
-import {
-  Injectable,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ArticleRepositoryPort } from '../../domain/ports/article.repository.port';
 import { Article } from '../../domain/entities/article.entity';
 import { Uuid } from '@/common/domain/value-objects';
-import {
-  ArticleTitle,
-  ArticleContent,
-  ArticleSummary,
-  ArticleSlug,
-} from '../../domain/value-objects';
+import { ArticleTitle, ArticleContent } from '../../domain/value-objects';
 import { InvalidValueObjectError } from '@/common';
 
 export interface CreateArticleCommand {

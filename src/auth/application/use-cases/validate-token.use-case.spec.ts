@@ -111,7 +111,8 @@ describe('ValidateTokenUseCase', () => {
           user: {
             id: '7b6347d5-eea6-45d1-82a0-d0732a0d430e',
             email: 'ihury@graodireto.com.br',
-            display_name: 'Ihury Kewin',
+            displayName: 'Ihury Kewin',
+            avatarUrl: undefined,
           },
         });
       });

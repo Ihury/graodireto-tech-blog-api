@@ -18,6 +18,7 @@ CREATE TABLE "public"."article" (
     "id" UUID NOT NULL,
     "author_id" UUID NOT NULL,
     "title" VARCHAR(200) NOT NULL,
+    "slug" VARCHAR(250) NOT NULL,
     "summary" VARCHAR(280),
     "content" TEXT NOT NULL,
     "cover_image_url" TEXT,
@@ -30,21 +31,20 @@ CREATE TABLE "public"."article" (
 
 -- CreateTable
 CREATE TABLE "public"."tag" (
-    "id" UUID NOT NULL,
-    "name" VARCHAR(60) NOT NULL,
     "slug" VARCHAR(80) NOT NULL,
+    "name" VARCHAR(60) NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "tag_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tag_pkey" PRIMARY KEY ("slug")
 );
 
 -- CreateTable
 CREATE TABLE "public"."article_tag" (
     "article_id" UUID NOT NULL,
-    "tag_id" UUID NOT NULL,
+    "tag_slug" VARCHAR(80) NOT NULL,
 
-    CONSTRAINT "article_tag_pkey" PRIMARY KEY ("article_id","tag_id")
+    CONSTRAINT "article_tag_pkey" PRIMARY KEY ("article_id","tag_slug")
 );
 
 -- CreateTable
@@ -65,19 +65,22 @@ CREATE TABLE "public"."comment" (
 CREATE UNIQUE INDEX "user_email_key" ON "public"."user"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "article_slug_key" ON "public"."article"("slug");
+
+-- CreateIndex
 CREATE INDEX "idx_articles_published_at_id" ON "public"."article"("created_at", "id");
 
 -- CreateIndex
 CREATE INDEX "idx_articles_title" ON "public"."article"("title");
 
 -- CreateIndex
+CREATE INDEX "idx_articles_slug" ON "public"."article"("slug");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "tag_name_key" ON "public"."tag"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tag_slug_key" ON "public"."tag"("slug");
-
--- CreateIndex
-CREATE INDEX "article_tag_tag_id_article_id_idx" ON "public"."article_tag"("tag_id", "article_id");
+CREATE INDEX "article_tag_tag_slug_article_id_idx" ON "public"."article_tag"("tag_slug", "article_id");
 
 -- CreateIndex
 CREATE INDEX "idx_comments_article_created_id" ON "public"."comment"("article_id", "created_at", "id");
@@ -92,7 +95,7 @@ ALTER TABLE "public"."article" ADD CONSTRAINT "article_author_id_fkey" FOREIGN K
 ALTER TABLE "public"."article_tag" ADD CONSTRAINT "article_tag_article_id_fkey" FOREIGN KEY ("article_id") REFERENCES "public"."article"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."article_tag" ADD CONSTRAINT "article_tag_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "public"."tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."article_tag" ADD CONSTRAINT "article_tag_tag_slug_fkey" FOREIGN KEY ("tag_slug") REFERENCES "public"."tag"("slug") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."comment" ADD CONSTRAINT "comment_article_id_fkey" FOREIGN KEY ("article_id") REFERENCES "public"."article"("id") ON DELETE CASCADE ON UPDATE CASCADE;

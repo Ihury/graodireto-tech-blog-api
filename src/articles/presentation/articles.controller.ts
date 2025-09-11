@@ -42,6 +42,7 @@ import { DeleteArticleResponseDto } from './dto/delete-article.dto';
 
 @ApiTags('articles')
 @Controller('articles')
+@UseGuards(AuthGuard)
 export class ArticlesController {
   constructor(
     private readonly listArticlesUseCase: ListArticlesUseCase,
@@ -125,7 +126,6 @@ export class ArticlesController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Criar novo artigo' })
   @ApiResponse({
@@ -152,7 +152,6 @@ export class ArticlesController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Atualizar artigo' })
   @ApiParam({
@@ -191,7 +190,6 @@ export class ArticlesController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Deletar artigo' })
   @ApiParam({

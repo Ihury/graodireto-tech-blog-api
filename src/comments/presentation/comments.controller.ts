@@ -37,6 +37,7 @@ import { DeleteCommentResponseDto } from './dto/delete-comment.dto';
 
 @ApiTags('comments')
 @Controller('comments')
+@UseGuards(AuthGuard)
 export class CommentsController {
   constructor(
     private readonly createCommentUseCase: CreateCommentUseCase,
@@ -106,7 +107,6 @@ export class CommentsController {
   }
 
   @Post('article/:articleId')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Criar novo comentário em um artigo' })
   @ApiParam({
@@ -139,7 +139,6 @@ export class CommentsController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Deletar comentário' })
   @ApiParam({

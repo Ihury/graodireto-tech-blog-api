@@ -71,7 +71,9 @@ describe('ListRepliesUseCase', () => {
     describe('Paginação básica', () => {
       it('deve listar respostas com paginação padrão', async () => {
         const command = { parentId: mockParentId };
-        commentRepository.findRepliesByParentId.mockResolvedValue(mockRepositoryResult);
+        commentRepository.findRepliesByParentId.mockResolvedValue(
+          mockRepositoryResult,
+        );
 
         const result = await useCase.execute(command);
 
@@ -79,26 +81,43 @@ describe('ListRepliesUseCase', () => {
         expect(result.data).toHaveLength(3);
         expect(result.meta.size).toBe(3);
         expect(result.meta.nextCursor).toBe('next-page-cursor');
-        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(expect.any(Uuid), { size: 10, after: undefined });
+        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(
+          expect.any(Uuid),
+          { size: 10, after: undefined },
+        );
       });
 
       it('deve listar respostas com paginação personalizada', async () => {
-        const command = { parentId: mockParentId, size: 5, after: 'cursor-123' };
-        commentRepository.findRepliesByParentId.mockResolvedValue(mockRepositoryResult);
+        const command = {
+          parentId: mockParentId,
+          size: 5,
+          after: 'cursor-123',
+        };
+        commentRepository.findRepliesByParentId.mockResolvedValue(
+          mockRepositoryResult,
+        );
 
         const result = await useCase.execute(command);
 
         expect(result.meta.size).toBe(3);
-        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(expect.any(Uuid), { size: 5, after: 'cursor-123' });
+        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(
+          expect.any(Uuid),
+          { size: 5, after: 'cursor-123' },
+        );
       });
 
       it('deve limitar size máximo a 50', async () => {
         const command = { parentId: mockParentId, size: 100 };
-        commentRepository.findRepliesByParentId.mockResolvedValue(mockRepositoryResult);
+        commentRepository.findRepliesByParentId.mockResolvedValue(
+          mockRepositoryResult,
+        );
 
         const result = await useCase.execute(command);
 
-        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(expect.any(Uuid), { size: 50, after: undefined });
+        expect(commentRepository.findRepliesByParentId).toHaveBeenCalledWith(
+          expect.any(Uuid),
+          { size: 50, after: undefined },
+        );
       });
     });
 
@@ -106,7 +125,10 @@ describe('ListRepliesUseCase', () => {
     describe('Cenários de resultado', () => {
       it('deve lidar com resultado vazio', async () => {
         const command = { parentId: mockParentId };
-        const emptyResult = { data: [], meta: { size: 0, nextCursor: undefined } };
+        const emptyResult = {
+          data: [],
+          meta: { size: 0, nextCursor: undefined },
+        };
         commentRepository.findRepliesByParentId.mockResolvedValue(emptyResult);
 
         const result = await useCase.execute(command);
@@ -118,7 +140,9 @@ describe('ListRepliesUseCase', () => {
 
       it('deve retornar respostas ordenadas por data de criação', async () => {
         const command = { parentId: mockParentId };
-        commentRepository.findRepliesByParentId.mockResolvedValue(mockRepositoryResult);
+        commentRepository.findRepliesByParentId.mockResolvedValue(
+          mockRepositoryResult,
+        );
 
         const result = await useCase.execute(command);
 
@@ -130,8 +154,13 @@ describe('ListRepliesUseCase', () => {
 
       it('deve indicar quando há mais respostas disponíveis', async () => {
         const command = { parentId: mockParentId };
-        const resultWithMoreReplies = { data: mockReplies.slice(0, 2), meta: { size: 2, nextCursor: 'next-cursor' } };
-        commentRepository.findRepliesByParentId.mockResolvedValue(resultWithMoreReplies);
+        const resultWithMoreReplies = {
+          data: mockReplies.slice(0, 2),
+          meta: { size: 2, nextCursor: 'next-cursor' },
+        };
+        commentRepository.findRepliesByParentId.mockResolvedValue(
+          resultWithMoreReplies,
+        );
 
         const result = await useCase.execute(command);
 
@@ -144,10 +173,12 @@ describe('ListRepliesUseCase', () => {
     describe('Validação de UUID', () => {
       it('deve converter string UUID para objeto Uuid corretamente', async () => {
         let capturedUuid: Uuid | undefined;
-        commentRepository.findRepliesByParentId.mockImplementation((uuid: Uuid) => {
-          capturedUuid = uuid;
-          return Promise.resolve(mockRepositoryResult);
-        });
+        commentRepository.findRepliesByParentId.mockImplementation(
+          (uuid: Uuid) => {
+            capturedUuid = uuid;
+            return Promise.resolve(mockRepositoryResult);
+          },
+        );
 
         await useCase.execute({ parentId: mockParentId });
 
@@ -168,9 +199,13 @@ describe('ListRepliesUseCase', () => {
       it('deve propagar erros do repositório', async () => {
         const command = { parentId: mockParentId };
         const repositoryError = new Error('Erro do repositório');
-        commentRepository.findRepliesByParentId.mockRejectedValue(repositoryError);
+        commentRepository.findRepliesByParentId.mockRejectedValue(
+          repositoryError,
+        );
 
-        await expect(useCase.execute(command)).rejects.toThrow('Erro do repositório');
+        await expect(useCase.execute(command)).rejects.toThrow(
+          'Erro do repositório',
+        );
       });
     });
   });

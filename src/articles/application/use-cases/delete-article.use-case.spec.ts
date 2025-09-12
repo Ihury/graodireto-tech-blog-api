@@ -22,10 +22,16 @@ describe('DeleteArticleUseCase', () => {
     return Article.reconstitute({
       id: Uuid.create(mockArticleId),
       authorId: Uuid.create(mockUserId),
-      title: ArticleTitle.create('Como implementar Clean Architecture no NestJS'),
+      title: ArticleTitle.create(
+        'Como implementar Clean Architecture no NestJS',
+      ),
       slug: ArticleSlug.create('como-implementar-clean-architecture-no-nestjs'),
-      summary: ArticleSummary.create('Um guia completo sobre como aplicar os princípios da Clean Architecture.'),
-      content: ArticleContent.create('Clean Architecture é um padrão arquitetural que...'),
+      summary: ArticleSummary.create(
+        'Um guia completo sobre como aplicar os princípios da Clean Architecture.',
+      ),
+      content: ArticleContent.create(
+        'Clean Architecture é um padrão arquitetural que...',
+      ),
       coverImageUrl: 'https://exemplo.com/imagem.jpg',
       isDeleted,
       createdAt: new Date('2023-01-01'),
@@ -75,7 +81,9 @@ describe('DeleteArticleUseCase', () => {
         const result = await useCase.execute(validCommand);
 
         expect(result).toEqual({ success: true });
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
         expect(articleRepository.delete).toHaveBeenCalledWith(expect.any(Uuid));
       });
 
@@ -96,10 +104,15 @@ describe('DeleteArticleUseCase', () => {
 
     describe('validação de autorização', () => {
       it('deve lançar ForbiddenException quando usuário não é o autor', async () => {
-        const commandWithDifferentAuthor = { ...validCommand, authorId: '1b4509e5-5212-4f7c-af04-244fcdac6580' };
+        const commandWithDifferentAuthor = {
+          ...validCommand,
+          authorId: '1b4509e5-5212-4f7c-af04-244fcdac6580',
+        };
         articleRepository.findById.mockResolvedValue(createMockArticle());
 
-        await expect(useCase.execute(commandWithDifferentAuthor)).rejects.toThrow(ForbiddenException);
+        await expect(
+          useCase.execute(commandWithDifferentAuthor),
+        ).rejects.toThrow(ForbiddenException);
         expect(articleRepository.delete).not.toHaveBeenCalled();
       });
     });
@@ -108,7 +121,9 @@ describe('DeleteArticleUseCase', () => {
       it('deve lançar NotFoundException quando artigo não existe', async () => {
         articleRepository.findById.mockResolvedValue(null);
 
-        await expect(useCase.execute(validCommand)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(validCommand)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(articleRepository.delete).not.toHaveBeenCalled();
       });
     });
@@ -116,10 +131,11 @@ describe('DeleteArticleUseCase', () => {
     describe('mapeamento de erros de domínio para HTTP', () => {
       it('deve mapear erro de UUID inválido para NotFoundException', async () => {
         const invalidCommand = { id: 'invalid-uuid', authorId: mockUserId };
-        await expect(useCase.execute(invalidCommand)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(invalidCommand)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(articleRepository.delete).not.toHaveBeenCalled();
       });
-
     });
 
     describe('fluxo de deleção e validação de UUID', () => {
@@ -177,19 +193,26 @@ describe('DeleteArticleUseCase', () => {
           return Promise.resolve(null);
         });
 
-        await expect(useCase.execute(validCommand)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(validCommand)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(callOrder).toEqual(['findById']);
       });
 
       it('deve parar no segundo erro (sem permissão)', async () => {
-        const commandWithDifferentAuthor = { ...validCommand, authorId: '1b4509e5-5212-4f7c-af04-244fcdac6580' };
+        const commandWithDifferentAuthor = {
+          ...validCommand,
+          authorId: '1b4509e5-5212-4f7c-af04-244fcdac6580',
+        };
         const callOrder: string[] = [];
         articleRepository.findById.mockImplementation(() => {
           callOrder.push('findById');
           return Promise.resolve(createMockArticle());
         });
 
-        await expect(useCase.execute(commandWithDifferentAuthor)).rejects.toThrow(ForbiddenException);
+        await expect(
+          useCase.execute(commandWithDifferentAuthor),
+        ).rejects.toThrow(ForbiddenException);
         expect(callOrder).toEqual(['findById']);
       });
     });

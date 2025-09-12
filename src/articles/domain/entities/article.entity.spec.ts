@@ -22,7 +22,10 @@ describe('Article Entity', () => {
     ],
   });
 
-  const createMockArticle = (title: string, id = '346e9870-8248-41e5-89d4-c73725905d8d') => {
+  const createMockArticle = (
+    title: string,
+    id = '346e9870-8248-41e5-89d4-c73725905d8d',
+  ) => {
     return Article.reconstitute({
       id: Uuid.create(id),
       authorId: Uuid.create('3c1b4ab9-6965-4237-9847-e7d9dd83325f'),
@@ -49,10 +52,18 @@ describe('Article Entity', () => {
 
       const article = Article.create(props);
 
-      expect(article.getTitle().getValue()).toBe('A Revolução da Grão Direto no Agronegócio');
-      expect(article.getContent().getValue()).toContain('A Grão Direto tem transformado');
-      expect(article.getAuthorId().getValue()).toBe('3c1b4ab9-6965-4237-9847-e7d9dd83325f');
-      expect(article.getCoverImageUrl()).toBe('https://exemplo.com/grao-direto.jpg');
+      expect(article.getTitle().getValue()).toBe(
+        'A Revolução da Grão Direto no Agronegócio',
+      );
+      expect(article.getContent().getValue()).toContain(
+        'A Grão Direto tem transformado',
+      );
+      expect(article.getAuthorId().getValue()).toBe(
+        '3c1b4ab9-6965-4237-9847-e7d9dd83325f',
+      );
+      expect(article.getCoverImageUrl()).toBe(
+        'https://exemplo.com/grao-direto.jpg',
+      );
       expect(article.getId()).toBeDefined();
       expect(article.getCreatedAt()).toBeInstanceOf(Date);
       expect(article.getUpdatedAt()).toBeInstanceOf(Date);
@@ -70,7 +81,9 @@ describe('Article Entity', () => {
 
       const article = Article.create(props);
 
-      expect(article.getTitle().getValue()).toBe('Implementando CI/CD em Ambientes Ágeis');
+      expect(article.getTitle().getValue()).toBe(
+        'Implementando CI/CD em Ambientes Ágeis',
+      );
       expect(article.getCoverImageUrl()).toBeUndefined();
       expect(article.getTags()).toEqual([]);
       expect(article.getSummary()).toBeDefined();
@@ -81,7 +94,9 @@ describe('Article Entity', () => {
 
       const article = Article.create(props);
 
-      expect(article.getSlug().getValue()).toBe('a-revolucao-da-grao-direto-no-agronegocio');
+      expect(article.getSlug().getValue()).toBe(
+        'a-revolucao-da-grao-direto-no-agronegocio',
+      );
     });
 
     it('deve gerar summary automaticamente baseado no conteúdo', () => {
@@ -91,11 +106,16 @@ describe('Article Entity', () => {
 
       expect(article.getSummary()).toBeDefined();
       expect(article.getSummary()?.getValue()?.length).toBeLessThanOrEqual(280);
-      expect(article.getSummary()?.getValue()).toContain('A Grão Direto tem transformado');
+      expect(article.getSummary()?.getValue()).toContain(
+        'A Grão Direto tem transformado',
+      );
     });
 
     it('deve usar slug customizado quando fornecido', () => {
-      const props = { ...createValidArticleProps(), slug: ArticleSlug.create('slug-customizado') };
+      const props = {
+        ...createValidArticleProps(),
+        slug: ArticleSlug.create('slug-customizado'),
+      };
 
       const article = Article.create(props);
 
@@ -105,12 +125,16 @@ describe('Article Entity', () => {
     it('deve usar summary customizado quando fornecido', () => {
       const props = {
         ...createValidArticleProps(),
-        summary: ArticleSummary.create('Resumo customizado do artigo sobre Grão Direto.'),
+        summary: ArticleSummary.create(
+          'Resumo customizado do artigo sobre Grão Direto.',
+        ),
       };
 
       const article = Article.create(props);
 
-      expect(article.getSummary()!.getValue()).toBe('Resumo customizado do artigo sobre Grão Direto.');
+      expect(article.getSummary()!.getValue()).toBe(
+        'Resumo customizado do artigo sobre Grão Direto.',
+      );
     });
   });
 
@@ -146,16 +170,30 @@ describe('Article Entity', () => {
 
       const article = Article.reconstitute(props);
 
-      expect(article.getId().getValue()).toBe('346e9870-8248-41e5-89d4-c73725905d8d');
-      expect(article.getAuthorId().getValue()).toBe('3c1b4ab9-6965-4237-9847-e7d9dd83325f');
-      expect(article.getAuthor()!.id).toBe('3c1b4ab9-6965-4237-9847-e7d9dd83325f');
-      expect(article.getTitle().getValue()).toBe('A Revolução da Grão Direto no Agronegócio');
-      expect(article.getSlug().getValue()).toBe('a-revolucao-da-grao-direto-no-agronegocio');
+      expect(article.getId().getValue()).toBe(
+        '346e9870-8248-41e5-89d4-c73725905d8d',
+      );
+      expect(article.getAuthorId().getValue()).toBe(
+        '3c1b4ab9-6965-4237-9847-e7d9dd83325f',
+      );
+      expect(article.getAuthor()!.id).toBe(
+        '3c1b4ab9-6965-4237-9847-e7d9dd83325f',
+      );
+      expect(article.getTitle().getValue()).toBe(
+        'A Revolução da Grão Direto no Agronegócio',
+      );
+      expect(article.getSlug().getValue()).toBe(
+        'a-revolucao-da-grao-direto-no-agronegocio',
+      );
       expect(article.getSummary()!.getValue()).toBe(
         'A Grão Direto tem transformado o setor agrícola ao introduzir tecnologia de ponta para conectar produtores e compradores de grãos.',
       );
-      expect(article.getContent().getValue()).toContain('A Grão Direto tem transformado');
-      expect(article.getCoverImageUrl()).toBe('https://exemplo.com/grao-direto.jpg');
+      expect(article.getContent().getValue()).toContain(
+        'A Grão Direto tem transformado',
+      );
+      expect(article.getCoverImageUrl()).toBe(
+        'https://exemplo.com/grao-direto.jpg',
+      );
       expect(article.getTags()).toHaveLength(3);
       expect(article.isArticleDeleted()).toBe(false);
       expect(article.getCreatedAt()).toEqual(new Date('2023-01-01'));

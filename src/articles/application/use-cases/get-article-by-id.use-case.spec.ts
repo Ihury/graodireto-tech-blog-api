@@ -87,30 +87,42 @@ describe('GetArticleByIdUseCase', () => {
         const result = await useCase.execute(validCommand);
 
         expect(result).toEqual({ article: mockArticle });
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
         expect(articleRepository.findById).toHaveBeenCalledTimes(1);
       });
 
       it('deve lançar NotFoundException quando artigo não existe', async () => {
         articleRepository.findById.mockResolvedValue(null);
 
-        await expect(useCase.execute(validCommand)).rejects.toThrow(NotFoundException);
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        await expect(useCase.execute(validCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
       });
 
       it('deve lançar NotFoundException quando artigo está deletado', async () => {
         const deletedArticle = createMockArticle(true);
         articleRepository.findById.mockResolvedValue(deletedArticle);
 
-        await expect(useCase.execute(validCommand)).rejects.toThrow(NotFoundException);
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        await expect(useCase.execute(validCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
       });
     });
 
     describe('mapeamento de erros de domínio para HTTP', () => {
       it('deve mapear erro de UUID inválido para NotFoundException', async () => {
         const invalidCommand = { id: 'invalid-uuid' };
-        await expect(useCase.execute(invalidCommand)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(invalidCommand)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(articleRepository.findById).not.toHaveBeenCalled();
       });
     });
@@ -139,9 +151,11 @@ describe('GetArticleByIdUseCase', () => {
 
         expect(result.article).toEqual(completeArticle);
         expect(result.article.getId().getValue()).toBe(mockArticleId);
-        expect(result.article.getTitle().getValue()).toBe('A Revolução da Grão Direto no Agronegócio');
+        expect(result.article.getTitle().getValue()).toBe(
+          'A Revolução da Grão Direto no Agronegócio',
+        );
         expect(result.article.getSummary()!.getValue()).toBe(
-          'A Grão Direto tem transformado o setor agrícola ao introduzir tecnologia de ponta para conectar produtores e compradores de grãos.'
+          'A Grão Direto tem transformado o setor agrícola ao introduzir tecnologia de ponta para conectar produtores e compradores de grãos.',
         );
         expect(result.article.getTags()).toHaveLength(3);
       });

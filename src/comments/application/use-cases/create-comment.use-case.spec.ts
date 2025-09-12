@@ -25,9 +25,13 @@ describe('CreateCommentUseCase', () => {
       id: Uuid.create(mockArticleId),
       authorId: Uuid.create(crypto.randomUUID()),
       title: ArticleTitle.create('A Revolução da Grão Direto no Agronegócio'),
-      slug: { getValue: () => 'a-revolucao-da-grao-direto-no-agronegocio' } as any,
+      slug: {
+        getValue: () => 'a-revolucao-da-grao-direto-no-agronegocio',
+      } as any,
       summary: { getValue: () => 'Resumo do artigo' } as any,
-      content: ArticleContent.create('Conteúdo do artigo válido com pelo menos 50 caracteres'),
+      content: ArticleContent.create(
+        'Conteúdo do artigo válido com pelo menos 50 caracteres',
+      ),
       coverImageUrl: 'https://exemplo.com/grao-direto.jpg',
       isDeleted: false,
       createdAt: new Date('2023-01-01'),
@@ -104,7 +108,9 @@ describe('CreateCommentUseCase', () => {
         const result = await useCase.execute(validCommand);
 
         expect(result).toEqual({ comment: mockComment });
-        expect(commentRepository.save).toHaveBeenCalledWith(expect.any(Comment));
+        expect(commentRepository.save).toHaveBeenCalledWith(
+          expect.any(Comment),
+        );
         expect(commentRepository.save).toHaveBeenCalledTimes(1);
       });
 
@@ -121,8 +127,12 @@ describe('CreateCommentUseCase', () => {
         const result = await useCase.execute(commandWithParent);
 
         expect(result).toEqual({ comment: mockReply });
-        expect(commentRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
-        expect(commentRepository.save).toHaveBeenCalledWith(expect.any(Comment));
+        expect(commentRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
+        expect(commentRepository.save).toHaveBeenCalledWith(
+          expect.any(Comment),
+        );
       });
     });
 
@@ -131,7 +141,9 @@ describe('CreateCommentUseCase', () => {
       it('deve lançar NotFoundException quando artigo não existe', async () => {
         articleRepository.findById.mockResolvedValue(null);
 
-        await expect(useCase.execute(validCommand)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(validCommand)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
     });
@@ -144,7 +156,9 @@ describe('CreateCommentUseCase', () => {
         articleRepository.findById.mockResolvedValue(mockArticle);
         commentRepository.findById.mockResolvedValue(null);
 
-        await expect(useCase.execute(commandWithParent)).rejects.toThrow(NotFoundException);
+        await expect(useCase.execute(commandWithParent)).rejects.toThrow(
+          NotFoundException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
 
@@ -156,7 +170,9 @@ describe('CreateCommentUseCase', () => {
         articleRepository.findById.mockResolvedValue(mockArticle);
         commentRepository.findById.mockResolvedValue(mockParentComment);
 
-        await expect(useCase.execute(commandWithParent)).rejects.toThrow(BadRequestException);
+        await expect(useCase.execute(commandWithParent)).rejects.toThrow(
+          BadRequestException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
 
@@ -176,7 +192,9 @@ describe('CreateCommentUseCase', () => {
         articleRepository.findById.mockResolvedValue(mockArticle);
         commentRepository.findById.mockResolvedValue(mockParentComment);
 
-        await expect(useCase.execute(commandWithParent)).rejects.toThrow(BadRequestException);
+        await expect(useCase.execute(commandWithParent)).rejects.toThrow(
+          BadRequestException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
     });
@@ -184,23 +202,36 @@ describe('CreateCommentUseCase', () => {
     // Teste de mapeamento de erros de domínio para HTTP
     describe('Mapeamento de erros de domínio para HTTP', () => {
       it('deve mapear InvalidValueObjectError para BadRequestException', async () => {
-        const invalidCommand = { articleId: 'invalid-uuid', authorId: mockUserId, content: 'Comentário válido' };
+        const invalidCommand = {
+          articleId: 'invalid-uuid',
+          authorId: mockUserId,
+          content: 'Comentário válido',
+        };
 
-        await expect(useCase.execute(invalidCommand)).rejects.toThrow(BadRequestException);
+        await expect(useCase.execute(invalidCommand)).rejects.toThrow(
+          BadRequestException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
 
       it('deve mapear erro de conteúdo muito curto para BadRequestException', async () => {
         const commandWithShortContent = { ...validCommand, content: '' };
 
-        await expect(useCase.execute(commandWithShortContent)).rejects.toThrow(BadRequestException);
+        await expect(useCase.execute(commandWithShortContent)).rejects.toThrow(
+          BadRequestException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
 
       it('deve mapear erro de conteúdo muito longo para BadRequestException', async () => {
-        const commandWithLongContent = { ...validCommand, content: 'a'.repeat(1001) }; // Mais de 1000 caracteres
+        const commandWithLongContent = {
+          ...validCommand,
+          content: 'a'.repeat(1001),
+        }; // Mais de 1000 caracteres
 
-        await expect(useCase.execute(commandWithLongContent)).rejects.toThrow(BadRequestException);
+        await expect(useCase.execute(commandWithLongContent)).rejects.toThrow(
+          BadRequestException,
+        );
         expect(commentRepository.save).not.toHaveBeenCalled();
       });
     });
@@ -221,9 +252,15 @@ describe('CreateCommentUseCase', () => {
         await useCase.execute(validCommand);
 
         expect(capturedComment).toBeDefined();
-        expect(capturedComment!.getContent().getValue()).toBe(validCommand.content);
-        expect(capturedComment!.getArticleId().getValue()).toBe(validCommand.articleId);
-        expect(capturedComment!.getAuthorId().getValue()).toBe(validCommand.authorId);
+        expect(capturedComment!.getContent().getValue()).toBe(
+          validCommand.content,
+        );
+        expect(capturedComment!.getArticleId().getValue()).toBe(
+          validCommand.articleId,
+        );
+        expect(capturedComment!.getAuthorId().getValue()).toBe(
+          validCommand.authorId,
+        );
         expect(capturedComment!.isReply()).toBe(false);
       });
 
@@ -244,10 +281,18 @@ describe('CreateCommentUseCase', () => {
         await useCase.execute(commandWithParent);
 
         expect(capturedComment).toBeDefined();
-        expect(capturedComment!.getContent().getValue()).toBe(commandWithParent.content);
-        expect(capturedComment!.getArticleId().getValue()).toBe(commandWithParent.articleId);
-        expect(capturedComment!.getAuthorId().getValue()).toBe(commandWithParent.authorId);
-        expect(capturedComment!.getParentId()?.getValue()).toBe(commandWithParent.parentId);
+        expect(capturedComment!.getContent().getValue()).toBe(
+          commandWithParent.content,
+        );
+        expect(capturedComment!.getArticleId().getValue()).toBe(
+          commandWithParent.articleId,
+        );
+        expect(capturedComment!.getAuthorId().getValue()).toBe(
+          commandWithParent.authorId,
+        );
+        expect(capturedComment!.getParentId()?.getValue()).toBe(
+          commandWithParent.parentId,
+        );
         expect(capturedComment!.isReply()).toBe(true);
       });
     });

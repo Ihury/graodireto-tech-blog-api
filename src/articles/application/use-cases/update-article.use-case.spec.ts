@@ -86,8 +86,12 @@ describe('UpdateArticleUseCase', () => {
       };
 
       const assertSaveCalledWith = (article: Article) => {
-        expect(articleRepository.save).toHaveBeenCalledWith(expect.any(Article));
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.save).toHaveBeenCalledWith(
+          expect.any(Article),
+        );
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
       };
 
       it('deve atualizar artigo com sucesso', async () => {
@@ -155,7 +159,9 @@ describe('UpdateArticleUseCase', () => {
         const result = await executeTest(commandWithEmptyImage);
 
         expect(result).toEqual({ article: mockArticle });
-        expect(articleRepository.save).toHaveBeenCalledWith(expect.any(Article));
+        expect(articleRepository.save).toHaveBeenCalledWith(
+          expect.any(Article),
+        );
       });
     });
 
@@ -172,7 +178,9 @@ describe('UpdateArticleUseCase', () => {
           useCase.execute(commandWithDifferentAuthor),
         ).rejects.toThrow(ForbiddenException);
 
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
         expect(articleRepository.save).not.toHaveBeenCalled();
       });
     });
@@ -185,7 +193,9 @@ describe('UpdateArticleUseCase', () => {
           NotFoundException,
         );
 
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
         expect(articleRepository.save).not.toHaveBeenCalled();
       });
 
@@ -208,7 +218,9 @@ describe('UpdateArticleUseCase', () => {
           NotFoundException,
         );
 
-        expect(articleRepository.findById).toHaveBeenCalledWith(expect.any(Uuid));
+        expect(articleRepository.findById).toHaveBeenCalledWith(
+          expect.any(Uuid),
+        );
         expect(articleRepository.save).not.toHaveBeenCalled();
       });
     });
@@ -310,7 +322,9 @@ describe('UpdateArticleUseCase', () => {
           'Novo conteúdo com pelo menos 50 caracteres para satisfazer a validação e gerar um novo resumo.',
         );
         expect(capturedArticle!.getSummary()).toBeDefined();
-        expect(capturedArticle!.getSummary()?.getValue()?.length).toBeLessThanOrEqual(280);
+        expect(
+          capturedArticle!.getSummary()?.getValue()?.length,
+        ).toBeLessThanOrEqual(280);
       });
 
       it('deve atualizar tags corretamente', async () => {

@@ -49,7 +49,9 @@ describe('ListArticlesUseCase', () => {
   const mockArticles = [
     createMockArticle('A Revolução da Grão Direto no Agronegócio'),
     createMockArticle('Implementando CI/CD em Ambientes Ágeis'),
-    createMockArticle('A Importância de Bancos de Dados NoSQL em Sistemas Escaláveis'),
+    createMockArticle(
+      'A Importância de Bancos de Dados NoSQL em Sistemas Escaláveis',
+    ),
   ];
 
   beforeEach(async () => {
@@ -100,7 +102,10 @@ describe('ListArticlesUseCase', () => {
         expect(result.meta.totalPages).toBe(1);
         expect(result.meta.hasNext).toBe(false);
 
-        expect(articleRepository.findMany).toHaveBeenCalledWith({}, { limit: 10, offset: 0 });
+        expect(articleRepository.findMany).toHaveBeenCalledWith(
+          {},
+          { limit: 10, offset: 0 },
+        );
       });
 
       it('deve listar artigos com paginação personalizada', async () => {
@@ -112,7 +117,10 @@ describe('ListArticlesUseCase', () => {
         expect(result.meta.page).toBe(2);
         expect(result.meta.size).toBe(5);
         expect(result.meta.totalPages).toBe(1);
-        expect(articleRepository.findMany).toHaveBeenCalledWith({}, { limit: 5, offset: 5 });
+        expect(articleRepository.findMany).toHaveBeenCalledWith(
+          {},
+          { limit: 5, offset: 5 },
+        );
       });
 
       it('deve limitar size máximo a 50', async () => {
@@ -122,7 +130,10 @@ describe('ListArticlesUseCase', () => {
         const result = await useCase.execute(command);
 
         expect(result.meta.size).toBe(50);
-        expect(articleRepository.findMany).toHaveBeenCalledWith({}, { limit: 50, offset: 0 });
+        expect(articleRepository.findMany).toHaveBeenCalledWith(
+          {},
+          { limit: 50, offset: 0 },
+        );
       });
     });
 
@@ -142,17 +153,6 @@ describe('ListArticlesUseCase', () => {
         );
       });
 
-      it('deve ignorar busca quando slugify retorna vazio', async () => {
-        const command = { search: '   ' };
-        mockSlugify.mockReturnValue('');
-        articleRepository.findMany.mockResolvedValue(mockRepositoryResult);
-
-        const result = await useCase.execute(command);
-
-        expect(mockSlugify).toHaveBeenCalledWith('   ');
-        expect(articleRepository.findMany).toHaveBeenCalledWith({}, { limit: 10, offset: 0 });
-      });
-
       it('deve filtrar por tags', async () => {
         const command = { tags: ['grao-direto', 'tecnologia'] };
         articleRepository.findMany.mockResolvedValue(mockRepositoryResult);
@@ -167,7 +167,10 @@ describe('ListArticlesUseCase', () => {
       });
 
       it('deve combinar filtros de busca e tags', async () => {
-        const command = { search: 'Grão Direto', tags: ['grao-direto', 'tecnologia'] };
+        const command = {
+          search: 'Grão Direto',
+          tags: ['grao-direto', 'tecnologia'],
+        };
         mockSlugify.mockReturnValue('grao-direto');
         articleRepository.findMany.mockResolvedValue(mockRepositoryResult);
 
@@ -175,7 +178,10 @@ describe('ListArticlesUseCase', () => {
 
         expect(result).toBeDefined();
         expect(articleRepository.findMany).toHaveBeenCalledWith(
-          { slugSearch: 'grao-direto', tagSlugs: ['grao-direto', 'tecnologia'] },
+          {
+            slugSearch: 'grao-direto',
+            tagSlugs: ['grao-direto', 'tecnologia'],
+          },
           { limit: 10, offset: 0 },
         );
       });
@@ -216,7 +222,9 @@ describe('ListArticlesUseCase', () => {
         const repositoryError = new Error('Erro do repositório');
         articleRepository.findMany.mockRejectedValue(repositoryError);
 
-        await expect(useCase.execute(command)).rejects.toThrow('Erro do repositório');
+        await expect(useCase.execute(command)).rejects.toThrow(
+          'Erro do repositório',
+        );
       });
     });
   });

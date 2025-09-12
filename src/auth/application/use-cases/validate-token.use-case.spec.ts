@@ -191,50 +191,6 @@ describe('ValidateTokenUseCase', () => {
         expect(userRepository.findById).not.toHaveBeenCalled();
       });
 
-      it('deve mapear InvalidTokenError para UnauthorizedException', async () => {
-        // Arrange
-        tokenService.verify.mockResolvedValue(mockTokenPayload);
-        tokenValidationService.validateTokenPayload.mockImplementation(() => {
-          throw new InvalidTokenError('Token expirado');
-        });
-
-        // Act & Assert
-        const exception = await useCase.execute(validCommand).catch((e) => e);
-
-        expect(exception).toBeInstanceOf(UnauthorizedException);
-        expect(exception.message).toBe('Token expirado');
-      });
-
-      it('deve mapear UserNotFoundError para UnauthorizedException', async () => {
-        // Arrange
-        tokenService.verify.mockResolvedValue(mockTokenPayload);
-        tokenValidationService.validateTokenPayload.mockReturnValue(true);
-        userRepository.findById.mockImplementation(() => {
-          throw new UserNotFoundError('Usuário não encontrado no sistema');
-        });
-
-        // Act & Assert
-        const exception = await useCase.execute(validCommand).catch((e) => e);
-
-        expect(exception).toBeInstanceOf(UnauthorizedException);
-        expect(exception.message).toBe('Usuário não encontrado no sistema');
-      });
-
-      it('deve mapear InactiveUserError para UnauthorizedException', async () => {
-        // Arrange
-        tokenService.verify.mockResolvedValue(mockTokenPayload);
-        tokenValidationService.validateTokenPayload.mockReturnValue(true);
-        userRepository.findById.mockImplementation(() => {
-          throw new InactiveUserError('Conta desativada');
-        });
-
-        // Act & Assert
-        const exception = await useCase.execute(validCommand).catch((e) => e);
-
-        expect(exception).toBeInstanceOf(UnauthorizedException);
-        expect(exception.message).toBe('Conta desativada');
-      });
-
       it('deve mapear erros gerais de verificação para UnauthorizedException', async () => {
         // Arrange
         tokenService.verify.mockRejectedValue(

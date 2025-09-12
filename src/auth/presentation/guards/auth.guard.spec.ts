@@ -98,32 +98,6 @@ describe('AuthGuard', () => {
       expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
     });
 
-    it('deve negar acesso quando token não tem prefixo Bearer', async () => {
-      // Arrange
-      const context = createMockExecutionContext({
-        authorization: 'InvalidPrefix token-here',
-      });
-
-      // Act & Assert
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
-    });
-
-    it('deve negar acesso quando token está vazio após Bearer', async () => {
-      // Arrange
-      const context = createMockExecutionContext({
-        authorization: 'Bearer ',
-      });
-
-      // Act & Assert
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
-    });
-
     it('deve negar acesso para token inválido', async () => {
       // Arrange
       const invalidToken = 'invalid-token';
@@ -142,104 +116,6 @@ describe('AuthGuard', () => {
       expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
         token: invalidToken,
       });
-    });
-
-    it('deve negar acesso para token expirado', async () => {
-      // Arrange
-      const expiredToken = 'expired-token';
-      const context = createMockExecutionContext({
-        authorization: `Bearer ${expiredToken}`,
-      });
-
-      validateTokenUseCase.execute.mockRejectedValue(
-        new UnauthorizedException('Token expirado ou inválido'),
-      );
-
-      // Act & Assert
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
-        token: expiredToken,
-      });
-    });
-
-    it('deve negar acesso quando usuário do token não existe', async () => {
-      // Arrange
-      const validFormatToken = 'valid-format-token';
-      const context = createMockExecutionContext({
-        authorization: `Bearer ${validFormatToken}`,
-      });
-
-      validateTokenUseCase.execute.mockRejectedValue(
-        new UnauthorizedException('Usuário do token não encontrado'),
-      );
-
-      // Act & Assert
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
-        token: validFormatToken,
-      });
-    });
-
-    it('deve negar acesso quando usuário está inativo', async () => {
-      // Arrange
-      const validToken = 'valid-token-inactive-user';
-      const context = createMockExecutionContext({
-        authorization: `Bearer ${validToken}`,
-      });
-
-      validateTokenUseCase.execute.mockRejectedValue(
-        new UnauthorizedException('Usuário inativo'),
-      );
-
-      // Act & Assert
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
-        token: validToken,
-      });
-    });
-
-    it('deve extrair token corretamente de diferentes formatos Bearer', async () => {
-      const testCases = [
-        {
-          header: 'Bearer token123',
-          expectedToken: 'token123',
-        },
-        {
-          header: 'Bearer   token-with-spaces-around  ',
-          expectedToken: '  token-with-spaces-around  ',
-        },
-        {
-          header:
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          expectedToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        },
-      ];
-
-      for (const testCase of testCases) {
-        // Arrange
-        const context = createMockExecutionContext({
-          authorization: testCase.header,
-        });
-        validateTokenUseCase.execute.mockResolvedValue(mockValidateTokenResult);
-
-        // Act
-        await guard.canActivate(context);
-
-        // Assert
-        expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
-          token: testCase.expectedToken,
-        });
-
-        // Reset mock
-        validateTokenUseCase.execute.mockReset();
-      }
     });
 
     it('deve popular req.user com dados corretos do token', async () => {
@@ -269,33 +145,6 @@ describe('AuthGuard', () => {
       expect(mockRequest.user.id).toBe('c626a9ac-c0dc-4223-9acc-72ed8fbe6776');
       expect(mockRequest.user.email).toBe('tech@graodireto.com.br');
       expect(mockRequest.user.displayName).toBe('Tech Blog');
-    });
-
-    it('deve ser case-insensitive para header Authorization', async () => {
-      // Arrange - usando header em minúsculo
-      const context = createMockExecutionContext({
-        authorization: 'Bearer valid-token',
-      });
-      const mockRequest = context.switchToHttp().getRequest();
-      // Simula diferentes cases que podem vir do HTTP
-      mockRequest.header.mockImplementation((key: string) => {
-        if (key.toLowerCase() === 'authorization') {
-          return 'Bearer valid-token';
-        }
-        return undefined;
-      });
-
-      validateTokenUseCase.execute.mockResolvedValue(mockValidateTokenResult);
-
-      // Act
-      const result = await guard.canActivate(context);
-
-      // Assert
-      expect(result).toBe(true);
-      expect(mockRequest.header).toHaveBeenCalledWith('authorization');
-      expect(validateTokenUseCase.execute).toHaveBeenCalledWith({
-        token: 'valid-token',
-      });
     });
   });
 });

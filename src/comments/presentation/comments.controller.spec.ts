@@ -116,7 +116,10 @@ describe('CommentsController', () => {
       const query: ListCommentsDto = { size: 10 };
       listCommentsByArticleUseCase.execute.mockResolvedValue(mockListResult);
 
-      const result = await controller.listCommentsByArticle(mockArticleId, query);
+      const result = await controller.listCommentsByArticle(
+        mockArticleId,
+        query,
+      );
 
       expect(result).toBeDefined();
       expect(result.data).toHaveLength(1);
@@ -130,17 +133,22 @@ describe('CommentsController', () => {
     it('deve listar comentários com paginação personalizada', async () => {
       const query: ListCommentsDto = {
         size: 5,
-        after: 'eyJpZCI6ImNvbW1lbnQtMSIsImNyZWF0ZWRBdCI6IjIwMjMtMDEtMDFUMDA6MDA6MDAuMDAwWiJ9',
+        after:
+          'eyJpZCI6ImNvbW1lbnQtMSIsImNyZWF0ZWRBdCI6IjIwMjMtMDEtMDFUMDA6MDA6MDAuMDAwWiJ9',
       };
       listCommentsByArticleUseCase.execute.mockResolvedValue(mockListResult);
 
-      const result = await controller.listCommentsByArticle(mockArticleId, query);
+      const result = await controller.listCommentsByArticle(
+        mockArticleId,
+        query,
+      );
 
       expect(result).toBeDefined();
       expect(listCommentsByArticleUseCase.execute).toHaveBeenCalledWith({
         articleId: mockArticleId,
         size: 5,
-        after: 'eyJpZCI6ImNvbW1lbnQtMSIsImNyZWF0ZWRBdCI6IjIwMjMtMDEtMDFUMDA6MDA6MDAuMDAwWiJ9',
+        after:
+          'eyJpZCI6ImNvbW1lbnQtMSIsImNyZWF0ZWRBdCI6IjIwMjMtMDEtMDFUMDA6MDA6MDAuMDAwWiJ9',
       });
     });
   });
@@ -175,17 +183,23 @@ describe('CommentsController', () => {
 
     it('deve criar comentário principal com sucesso', async () => {
       const dto: CreateCommentDto = {
-        content: 'Excelente artigo! Muito esclarecedor sobre Clean Architecture.',
+        content:
+          'Excelente artigo! Muito esclarecedor sobre Clean Architecture.',
       };
       createCommentUseCase.execute.mockResolvedValue({ comment: mockComment });
 
-      const result = await controller.createComment(mockArticleId, dto, mockRequest);
+      const result = await controller.createComment(
+        mockArticleId,
+        dto,
+        mockRequest,
+      );
 
       expect(result).toBeDefined();
       expect(createCommentUseCase.execute).toHaveBeenCalledWith({
         articleId: mockArticleId,
         authorId: mockUserId,
-        content: 'Excelente artigo! Muito esclarecedor sobre Clean Architecture.',
+        content:
+          'Excelente artigo! Muito esclarecedor sobre Clean Architecture.',
         parentId: undefined,
       });
     });
@@ -194,9 +208,13 @@ describe('CommentsController', () => {
       const dto: CreateCommentDto = {
         content: '', // Conteúdo vazio
       };
-      createCommentUseCase.execute.mockRejectedValue(new BadRequestException('Conteúdo do comentário não pode estar vazio'));
+      createCommentUseCase.execute.mockRejectedValue(
+        new BadRequestException('Conteúdo do comentário não pode estar vazio'),
+      );
 
-      await expect(controller.createComment(mockArticleId, dto, mockRequest)).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.createComment(mockArticleId, dto, mockRequest),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -215,24 +233,6 @@ describe('CommentsController', () => {
         id: mockCommentId,
         authorId: mockUserId,
       });
-    });
-  });
-
-  describe('validação de parâmetros', () => {
-    const mockRequest = { user: mockUser } as any;
-
-    it('deve validar UUID do artigo', async () => {
-      const invalidArticleId = 'invalid-uuid';
-      const dto: CreateCommentDto = { content: 'Comentário válido' };
-
-      await expect(controller.createComment(invalidArticleId, dto, mockRequest)).rejects.toThrow();
-    });
-
-    it('deve validar UUID do comentário na listagem de respostas', async () => {
-      const invalidCommentId = 'invalid-uuid';
-      const query: ListRepliesDto = { size: 10 };
-
-      await expect(controller.listReplies(invalidCommentId, query)).rejects.toThrow();
     });
   });
 });

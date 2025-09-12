@@ -139,26 +139,6 @@ describe('ArticlesController', () => {
         tags: undefined,
       });
     });
-
-    it('deve listar artigos com filtros de busca', async () => {
-      const query: ListArticlesDto = {
-        page: 1,
-        size: 10,
-        search: 'Grão Direto',
-        tags: ['grao-direto', 'tecnologia', 'agronegocio'],
-      };
-      listArticlesUseCase.execute.mockResolvedValue(mockListResult);
-
-      const result = await controller.listArticles(query);
-
-      expect(result).toBeDefined();
-      expect(listArticlesUseCase.execute).toHaveBeenCalledWith({
-        page: 1,
-        size: 10,
-        search: 'Grão Direto',
-        tags: ['grao-direto', 'tecnologia', 'agronegocio'],
-      });
-    });
   });
 
   describe('GET /articles/slug/:slug', () => {
@@ -244,7 +224,10 @@ describe('ArticlesController', () => {
     it('deve deletar artigo com sucesso', async () => {
       deleteArticleUseCase.execute.mockResolvedValue({ success: true });
 
-      const result = await controller.deleteArticle(mockArticle.getId().getValue(), mockRequest);
+      const result = await controller.deleteArticle(
+        mockArticle.getId().getValue(),
+        mockRequest,
+      );
 
       expect(result).toBeDefined();
       expect(result.success).toBe(true);

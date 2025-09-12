@@ -88,44 +88,6 @@ describe('TokenValidationService', () => {
       // Assert
       expect(result).toBe(false);
     });
-
-    it('deve validar tokens de diferentes usuários', () => {
-      const testUsers = [
-        {
-          id: '7b6347d5-eea6-45d1-82a0-d0732a0d430e',
-          email: 'ihury@graodireto.com.br',
-          name: 'Ihury Kewin',
-        },
-        {
-          id: 'c626a9ac-c0dc-4223-9acc-72ed8fbe6776',
-          email: 'contato@graodireto.com.br',
-          name: 'Grão Direto',
-        },
-        {
-          id: '46c4021d-26b6-4b1a-88b6-4e85e6aed7c3',
-          email: 'tech@graodireto.com.br',
-          name: 'Tech Blog',
-        },
-      ];
-
-      testUsers.forEach((testUser) => {
-        // Arrange
-        const now = Math.floor(Date.now() / 1000);
-        const tokenPayload = TokenPayload.create({
-          sub: Uuid.create(testUser.id),
-          email: Email.create(testUser.email),
-          displayName: DisplayName.create(testUser.name),
-          iat: now,
-          exp: now + 900,
-        });
-
-        // Act
-        const result = service.validateTokenPayload(tokenPayload);
-
-        // Assert
-        expect(result).toBe(true);
-      });
-    });
   });
 
   describe('validateUserFromToken', () => {

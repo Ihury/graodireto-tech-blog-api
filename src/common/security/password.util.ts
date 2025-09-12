@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { AppConfig } from '../../config/app.config';
+import { AppConfig } from '../../app.config';
 
 /**
  * Gera hash com bcrypt usando salt aleatório por hash.

@@ -30,10 +30,6 @@ export class DeleteArticleUseCase {
         throw new NotFoundException('Artigo não encontrado');
       }
 
-      if (article.isArticleDeleted()) {
-        throw new NotFoundException('Artigo não encontrado');
-      }
-
       // Verificar se o usuário é o autor do artigo
       if (!article.getAuthorId().equals(authorId)) {
         throw new ForbiddenException(

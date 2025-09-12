@@ -7,6 +7,14 @@ import { AppConfig } from './config/app.config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Configuração do CORS
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
+
   // Configuração global do ValidationPipe com transformação automática
   app.useGlobalPipes(new ValidationPipe(AppConfig.validation));
 

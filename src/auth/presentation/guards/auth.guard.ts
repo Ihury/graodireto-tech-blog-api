@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
       const header = request.header('authorization') ?? '';
       const token = header.startsWith('Bearer ') ? header.slice(7) : '';
 
-      if (!token) {
+      if (!token || token === '') {
         throw new UnauthorizedException('Missing Bearer token');
       }
 
@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
       this.logger.warn(
         `Auth falhou: ${err instanceof Error ? err.message : String(err)}`,
       );
-      throw err;
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }

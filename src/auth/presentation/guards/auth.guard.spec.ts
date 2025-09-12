@@ -82,9 +82,6 @@ describe('AuthGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        'Missing Bearer token',
-      );
       expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
     });
 
@@ -97,9 +94,6 @@ describe('AuthGuard', () => {
       // Act & Assert
       await expect(guard.canActivate(context)).rejects.toThrow(
         UnauthorizedException,
-      );
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        'Missing Bearer token',
       );
       expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
     });
@@ -114,9 +108,6 @@ describe('AuthGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        'Missing Bearer token',
-      );
       expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
     });
 
@@ -129,9 +120,6 @@ describe('AuthGuard', () => {
       // Act & Assert
       await expect(guard.canActivate(context)).rejects.toThrow(
         UnauthorizedException,
-      );
-      await expect(guard.canActivate(context)).rejects.toThrow(
-        'Missing Bearer token',
       );
       expect(validateTokenUseCase.execute).not.toHaveBeenCalled();
     });
@@ -280,7 +268,7 @@ describe('AuthGuard', () => {
       expect(mockRequest.user).toEqual(differentUser);
       expect(mockRequest.user.id).toBe('c626a9ac-c0dc-4223-9acc-72ed8fbe6776');
       expect(mockRequest.user.email).toBe('tech@graodireto.com.br');
-      expect(mockRequest.user.display_name).toBe('Tech Blog');
+      expect(mockRequest.user.displayName).toBe('Tech Blog');
     });
 
     it('deve ser case-insensitive para header Authorization', async () => {

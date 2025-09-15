@@ -190,6 +190,11 @@ npm run start:dev
   * Criação de **tags** únicas e vínculo N\:M `article_tags`
   * Usuários de seed servem para **login** (não há cadastro no MVP)
 
+* Login em ambiente de dev:
+  * É possível logar com qualquer um dos usuários presentes no json seed.
+  * Usuário: `nome-sobrenome@graodireto.com.br` (sem acentos ou caracteres especiais)
+  * Senha padrão: `techblog123`
+  * Exemplo com seed disponível: `carlos-eduardo@graodireto.com.br`:`techblog123`
 ---
 
 ## Documentação da API
